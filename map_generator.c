@@ -9,10 +9,12 @@ void * configuration(void)
 	config = fopen("config.txt", "r");
 	if (config == NULL)
 	{
-		static char convert_ch[14] = { ' ', '.', '`', ':', '~', '*', '=', '&', '%', '#' };
+		char convert_ch[14][13] = { "grass", "soil", "blue_brick", "magma", "bird", "fish", "tree", "friend", "boss", "diamond" };
 		FILE* write_config = fopen("config.txt", "w");
 		for (int x = 0; x < 10; x++)
-			fprintf(write_config, "%d %c\n", x, convert_ch[x]);
+		{
+			fprintf(write_config, "%d %s\n", x, convert_ch[x]);
+		}
 		fclose(write_config);
 	}
 }
@@ -65,6 +67,7 @@ int main(int argc, char* argv[])
 	long_limit = launch_param[0];
 	width = launch_param[1];
 	type_limit = launch_param[2];
+	configuration();
 	int romdom_num;
 	FILE* export;
 	export = fopen("export.txt", "w");
