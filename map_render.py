@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea, QApplication,
+from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea,
                              QVBoxLayout, QMainWindow, QGridLayout)
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore
@@ -42,18 +42,28 @@ class MainWindow(QMainWindow):
         with open('export.txt', "r") as f:
             content = f.read()
             content = content.replace(" ", "")
-            convert = ["grass", "soil", "blue_brick", "magma", "bird", "fish", "tree", "friend", "boss", "diamond"]
+            config = read_config()
             x = 0
             y = 0
             for ch in content:
                 if ch != "\n":
-                    ch = convert[int(ch)]
+                    ch = config[int(ch)]
                     self.add_texture("./texture/" + ch + ".png", y, x)
                     x = x + 1
                 else:
                     y = y + 1
                     x = 0
-        return 0
+
+
+def read_config():
+    with open("config.txt", 'r') as f:
+        config_content = f.read()
+        config_content = config_content.replace(" ", "")
+        config_content = config_content.splitlines()
+        config = []
+        for line in config_content:
+            config.insert(int(line[0]), line[1:])
+    return config
 
 
 if __name__ == '__main__':
