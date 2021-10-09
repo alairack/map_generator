@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea,
+from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea, QMessageBox,
                              QVBoxLayout, QMainWindow, QGridLayout)
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore
@@ -10,18 +10,35 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.setWindowFlags(Qt.Widget)
         self.initUI()
 
     def initUI(self):
         self.scroll = QScrollArea()
         self.widget = QWidget()
         self.vbox = QVBoxLayout()
+        self.vbox.setContentsMargins(0, 0, 0, 0)               # 设置边距为0,防止控件四周出现空白
         self.gridlayout = QGridLayout()
         self.gridlayout.setContentsMargins(0, 0, 0, 0)
         self.gridlayout.setSpacing(0)
         self.load_image()
         self.vbox.addLayout(self.gridlayout)
         self.widget.setLayout(self.vbox)
+        self.menuBar = QtWidgets.QMenuBar(self)
+        self.menuBar.setObjectName("menuBar")
+        self.menu = QtWidgets.QMenu(self.menuBar)
+        self.menu.setObjectName("menu")
+        self.menu.setTitle("文件")
+        self.setMenuBar(self.menuBar)
+        self.save_image = QtWidgets.QAction(self)
+        self.save_image.setObjectName("save_image")
+        self.save_image.setText("保存为图片")
+        self.save_image.setToolTip("把当前生成的地图保存为图片")
+        self.save_image.setEnabled(True)
+        self.save_image.setShortcut("Ctrl+S")
+        self.save_image.triggered.connect(self.save)
+        self.menu.addAction(self.save_image)
+        self.menuBar.addAction(self.menu.menuAction())
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setWidgetResizable(True)
@@ -53,6 +70,10 @@ class MainWindow(QMainWindow):
                 else:
                     y = y + 1
                     x = 0
+
+    def save(self):
+        self.widget.grab().save('map_save.png')
+        QMessageBox.information(self, "状态", "已成功保存至当前目录！")
 
 
 def read_config():
