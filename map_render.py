@@ -56,20 +56,24 @@ class MainWindow(QMainWindow):
         self.gridlayout.addWidget(label, layout_row, layout_column, 1, 1)
 
     def load_image(self):
-        with open('export.txt', "r") as f:
-            content = f.read()
-            content = content.replace(" ", "")
-            config = read_config()
-            x = 0
-            y = 0
-            for ch in content:
-                if ch != "\n":
-                    ch = config[int(ch)]
-                    self.add_texture("./texture/" + ch + ".png", y, x)
-                    x = x + 1
-                else:
-                    y = y + 1
-                    x = 0
+        try:
+            with open('export.txt', "r") as f:
+                content = f.read()
+                content = content.replace(" ", "")
+                config = read_config()
+                x = 0
+                y = 0
+                for ch in content:
+                    if ch != "\n":
+                        ch = config[int(ch)]
+                        self.add_texture("./texture/" + ch + ".png", y, x)
+                        x = x + 1
+                    else:
+                        y = y + 1
+                        x = 0
+        except FileNotFoundError:
+            QMessageBox.critical(None, '错误', '读取输入文件(export.txt)失败！')
+            sys.exit(3)
 
     def save(self):
         self.widget.grab().save('map_save.png')
@@ -77,14 +81,18 @@ class MainWindow(QMainWindow):
 
 
 def read_config():
-    with open("config.txt", 'r') as f:
-        config_content = f.read()
-        config_content = config_content.replace(" ", "")
-        config_content = config_content.splitlines()
-        config = []
-        for line in config_content:
-            config.insert(int(line[0]), line[1:])
-    return config
+    try:
+        with open("config.txt", 'r') as f:
+            config_content = f.read()
+            config_content = config_content.replace(" ", "")
+            config_content = config_content.splitlines()
+            config = []
+            for line in config_content:
+                config.insert(int(line[0]), line[1:])
+        return config
+    except FileNotFoundError:
+        QMessageBox.critical(None, '警告', "未能成功读取配置文件(config.txt)!")
+        sys.exit(4)
 
 
 if __name__ == '__main__':
