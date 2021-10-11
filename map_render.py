@@ -1,9 +1,11 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea, QMessageBox,
                              QVBoxLayout, QMainWindow, QGridLayout, QFileDialog)
 from PyQt5.QtCore import Qt
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtGui import QPixmap
 import sys
+import ctypes
+import resouce
 
 
 class MainWindow(QMainWindow):
@@ -12,6 +14,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowFlags(Qt.Widget)
         self.setWindowTitle('map_render')
+        self.setWindowIcon(QtGui.QIcon(':/icons/logo.ico'))
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("20211011")   # ctypes方法解决任务栏图标不更改的问题，且提高运行速度
         self.initUI()
 
     def initUI(self, folder_path="./texture/"):
@@ -85,15 +89,14 @@ class MainWindow(QMainWindow):
                     for ch in content:
                         if ch != "\n":
                             ch = config[int(ch)]
-                            self.add_texture(self.folder_path + ch + ".png", y, x)
+                            self.add_texture(self.folder_path + ch, y, x)
                             x = x + 1
                         else:
                             y = y + 1
                             x = 0
 
         except FileNotFoundError:
-            QMessageBox.critical(None, '错误', '读取输入文件(export.txt)失败！')
-            sys.exit(3)
+            QMessageBox.warning(None, '错误', '读取输入文件(export.txt)失败！')
 
     def save(self):
         self.widget.grab().save('map_save.png')
