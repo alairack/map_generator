@@ -9,7 +9,7 @@ void * configuration(void)
 	config = fopen("config.txt", "r");
 	if (config == NULL)
 	{
-		char convert_ch[14][13] = { "grass", "soil", "blue_brick", "magma", "bird", "fish", "tree", "friend", "boss", "diamond" };
+		char convert_ch[14][20] = { "grass.png", "soil.png", "blue_brick.png", "magma.png", "bird.png", "fish.png", "tree.png", "friend.png", "boss.png", "diamond.png" };
 		FILE* write_config = fopen("config.txt", "w");
 		for (int x = 0; x < 10; x++)
 		{
