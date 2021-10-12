@@ -9,8 +9,9 @@ void * configuration(void)
 	config = fopen("config.txt", "r");
 	if (config == NULL)
 	{
-		char convert_ch[14][20] = { "grass.png", "soil.png", "blue_brick.png", "magma.png", "bird.png", "fish.png", "tree.png", "friend.png", "boss.png", "diamond.png" };
+		char convert_ch[14][20] = {"grass.png", "soil.png", "blue_brick.png", "magma.png", "bird.png", "fish.png", "tree.png", "friend.png", "boss.png", "diamond.png" };
 		FILE* write_config = fopen("config.txt", "w");
+		fprintf(write_config, "texture\n");
 		for (int x = 0; x < 10; x++)
 		{
 			fprintf(write_config, "%d %s\n", x, convert_ch[x]);

@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QScrollArea, QMessageBox,
                              QVBoxLayout, QMainWindow, QGridLayout, QFileDialog)
 from PyQt5.QtCore import Qt
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui, QtWinExtras
 from PyQt5.QtGui import QPixmap
 import sys
-import ctypes
 import resouce
 
 
@@ -15,10 +14,10 @@ class MainWindow(QMainWindow):
         self.setWindowFlags(Qt.Widget)
         self.setWindowTitle('map_render')
         self.setWindowIcon(QtGui.QIcon(':/icons/logo.ico'))
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("20211011")   # ctypes方法解决任务栏图标不更改的问题，且提高运行速度
+        QtWinExtras.QtWin.setCurrentProcessExplicitAppUserModelID("20211012")   # Qtwin方法解决任务栏图标不更改的问题，且提高运行速度
         self.initUI()
 
-    def initUI(self, folder_path="./texture/"):
+    def initUI(self):
         self.scroll = QScrollArea()
         self.widget = QWidget()
         self.vbox = QVBoxLayout()
@@ -26,7 +25,6 @@ class MainWindow(QMainWindow):
         self.gridlayout = QGridLayout()
         self.gridlayout.setContentsMargins(0, 0, 0, 0)
         self.gridlayout.setSpacing(0)
-        self.folder_path = folder_path             # 默认贴图目录
         self.load_image()
         self.vbox.addLayout(self.gridlayout)
         self.widget.setLayout(self.vbox)
@@ -78,22 +76,21 @@ class MainWindow(QMainWindow):
             with open('export.txt', "r") as f:
                 content = f.read()
                 content = content.replace(" ", "")
-                config = read_config()
+                config, self.folder_path = read_config()
                 x = 0
                 y = 0
-                try:                                       # 判断是否已选择贴图目录，如果没有，使用默认目录
-                    self.folder_path
-                except NameError or ValueError or AttributeError:
-                    self.folder_path = "./texture/"
-                finally:
-                    for ch in content:
-                        if ch != "\n":
+                for ch in content:
+                    if ch != "\n":
+                        try:
                             ch = config[int(ch)]
-                            self.add_texture(self.folder_path + ch, y, x)
-                            x = x + 1
-                        else:
-                            y = y + 1
-                            x = 0
+                        except IndexError or ValueError:
+                            QMessageBox.critical(None, '错误', "读取config.txt错误！请检查config.txt")
+                            sys.exit(5)
+                        self.add_texture(self.folder_path + ch, y, x)
+                        x = x + 1
+                    else:
+                        y = y + 1
+                        x = 0
 
         except FileNotFoundError:
             QMessageBox.warning(None, '错误', '读取输入文件(export.txt)失败！')
@@ -107,11 +104,20 @@ class MainWindow(QMainWindow):
         listdir.setFileMode(QFileDialog.DirectoryOnly)
         listdir.setDirectory("./")
         if listdir.exec_():
-            self.folder_path = listdir.selectedFiles()[0] + "/"
+            self.folder_path = listdir.selectedFiles()[0]
+            with open("config.txt", 'r') as f:
+                old_config = f.read()
+                old_config = old_config.splitlines()
+                old_config[0] = self.folder_path
+            with open("config.txt", 'w') as f:
+                for line in old_config:
+                    f.write(line)
+                    f.write('\n')
+
 
     def reload(self):
         self.close()
-        self.initUI(self.folder_path)
+        self.initUI()
 
 
 def read_config():
@@ -121,9 +127,10 @@ def read_config():
             config_content = config_content.replace(" ", "")
             config_content = config_content.splitlines()
             config = []
-            for line in config_content:
+            folder_path = config_content[0] + '/'
+            for line in config_content[1:]:
                 config.insert(int(line[0]), line[1:])
-        return config
+        return config, folder_path
     except FileNotFoundError:
         QMessageBox.critical(None, '错误', "未能成功读取配置文件(config.txt)!")
         sys.exit(4)
